@@ -2,9 +2,13 @@ from elasticsearch import Elasticsearch
 from bs4 import BeautifulSoup
 import requests
 import pprint
+import os
 
 
 class Crawler:
+    def __init__(self):
+        self.esurl = os.environ.get('ESCONN')
+
     def get_data(self,url):
         r = requests.get("http://" + url)
         count = 0
@@ -18,8 +22,9 @@ class Crawler:
 
 
 if __name__ == "__main__":
-    es = Elasticsearch(['https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/'])
+    craw = Crawler()
+    es = Elasticsearch([craw.esurl])
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(es.info())
-    craw = Crawler()
+
     craw.get_data("en.wikibooks.org/wiki/Java_Programming")

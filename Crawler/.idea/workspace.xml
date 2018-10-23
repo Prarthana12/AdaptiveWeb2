@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="2b4934eb-0ae0-4474-b100-077e11a61ea6" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Crawler.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Crawler.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crawler.py" beforeDir="false" afterPath="$PROJECT_DIR$/crawler.py" afterDir="false" />
-    </list>
+    <list default="true" id="2b4934eb-0ae0-4474-b100-077e11a61ea6" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,8 +73,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/crawler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
-              <caret line="16" column="55" selection-start-line="16" selection-start-column="55" selection-end-line="16" selection-end-column="55" />
+            <state relative-caret-position="300">
+              <caret line="20" column="101" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="101" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
                 <marker date="1540261010024" expanded="true" signature="116:117" ph="..." />
@@ -166,6 +160,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="ESCONN" value="https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/" />
       </envs>
       <option name="SDK_HOME" value="/usr/local/bin/python3.7" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
@@ -265,8 +260,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/crawler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="16" column="55" selection-start-line="16" selection-start-column="55" selection-end-line="16" selection-end-column="55" />
+        <state relative-caret-position="300">
+          <caret line="20" column="101" lean-forward="true" selection-start-line="20" selection-start-column="24" selection-end-line="20" selection-end-column="101" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
             <marker date="1540261010024" expanded="true" signature="116:117" ph="..." />
