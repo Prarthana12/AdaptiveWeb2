@@ -9,7 +9,6 @@ import certifi
 
 class Crawler:
     def __init__(self):
-        self.esurl = os.environ.get('ESCONN')
         self.baseURL = "http://en.wikibooks.org"
         self.list_of_all_links = []
 
@@ -86,6 +85,8 @@ class Crawler:
             content_dict['contentType'] = content_type
             data = json.dumps(content_dict)
             print(data)
+            craw = Crawler()
+            craw.es_index_doc(data)
 
     def es_create_index(self):
         pPrint = pprint.PrettyPrinter(indent=4)
@@ -93,7 +94,7 @@ class Crawler:
             esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
             esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
             pPrint.pprint("Connected {0}".format(esClient.info()))
-            indexExist = esClient.indices.exists('prp')
+            indexExist = esClient.indices.exists('aw2')
             body = '''{
                           "settings": {
                             "number_of_shards": 2,
@@ -146,10 +147,11 @@ class Crawler:
                             }
                           }
                         }'''
-            if not indexExist:
-                esClient.indices.create(index='aw2', body=body)
-            for index in esClient.indices.get('*'):
-                pPrint.pprint(index)
+            if indexExist:
+                esClient.indices.delete(index='aw2', ignore=[400, 404])
+                print("Index deleted")
+            esClient.indices.create(index='aw2', body=body)
+            print("Index created")
         except Exception as ex:
             pPrint.pprint("Error: {0}".format(ex))
 
@@ -158,7 +160,7 @@ class Crawler:
         try:
             esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
             esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
-            es.index(index='aw2', doc_type='crawledData', body=data)
+            esClient.index(index='aw2', doc_type='crawledData', body=data)
         except Exception as ex:
             pPrint.pprint("Error: {0}".format(ex))
 
@@ -166,10 +168,7 @@ class Crawler:
 if __name__ == "__main__":
     craw = Crawler()
     craw.es_create_index()
-    es = Elasticsearch([craw.esurl])
     pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(es.info())
-
     got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
     if got_links:
         got_content = craw.get_content_from_all_links()
