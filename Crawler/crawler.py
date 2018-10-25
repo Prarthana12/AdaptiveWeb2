@@ -51,9 +51,9 @@ class Crawler:
                 current_page_content = response.content
                 self.get_content_from_each_link(current_link,
                                                 current_page_content)
-                return True
             else:
-                return False
+                flag = False
+        return flag
 
     def get_content_from_each_link(self, current_link, current_page_content):
         soup = BeautifulSoup(current_page_content, 'html.parser')
