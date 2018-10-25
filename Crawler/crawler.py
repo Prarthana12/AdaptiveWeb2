@@ -4,6 +4,7 @@ import requests
 import pprint
 import os
 import json
+import certifi
 
 
 class Crawler:
@@ -86,9 +87,85 @@ class Crawler:
             data = json.dumps(content_dict)
             print(data)
 
+    def es_create_index(self):
+        pPrint = pprint.PrettyPrinter(indent=4)
+        try:
+            esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
+            esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+            pPrint.pprint("Connected {0}".format(esClient.info()))
+            indexExist = esClient.indices.exists('prp')
+            body = '''{
+                          "settings": {
+                            "number_of_shards": 2,
+                            "analysis": {
+                              "analyzer": {
+                                "default": {
+                                  "type": "custom",
+                                  "tokenizer": "standard",
+                                  "filter": [
+                                    "lowercase",
+                                    "keyword_repeat",
+                                    "porter_stem",
+                                    "unique_stem",
+                                    "stopFilter"
+                                  ]
+                                }
+                              },
+                              "filter": {
+                                "stopFilter": {
+                                  "type": "stop",
+                                  "stopwords": "_english_"
+                                },
+                                "unique_stem": {
+                                  "type": "unique",
+                                  "only_on_same_position": true
+                                }
+                              }
+                            }
+                          },
+                          "mappings": {
+                            "crawledData": {
+                              "properties": {
+                                "pageURL": {
+                                  "type": "text"
+                                },
+                                "pageTitle": {
+                                  "type": "text"
+                                },
+                                "contentHeader": {
+                                  "type": "text"
+                                },
+                                "content": {
+                                  "type": "text",
+                                  "analyzer": "default"
+                                },
+                                "contentType": {
+                                  "type": "text"
+                                }
+                              }
+                            }
+                          }
+                        }'''
+            if not indexExist:
+                esClient.indices.create(index='aw2', body=body)
+            for index in esClient.indices.get('*'):
+                pPrint.pprint(index)
+        except Exception as ex:
+            pPrint.pprint("Error: {0}".format(ex))
+
+    def es_index_doc(self, data):
+        pPrint = pprint.PrettyPrinter(indent=4)
+        try:
+            esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
+            esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+            es.index(index='aw2', doc_type='crawledData', body=data)
+        except Exception as ex:
+            pPrint.pprint("Error: {0}".format(ex))
+
 
 if __name__ == "__main__":
     craw = Crawler()
+    craw.es_create_index()
     es = Elasticsearch([craw.esurl])
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(es.info())
