@@ -5,10 +5,10 @@ import pprint
 import os
 import json
 import pandas as pd
+import certifi
 
 class Crawler:
     def __init__(self):
-        self.esurl = os.environ.get('ESCONN')
         self.baseURL = "http://en.wikibooks.org"
         self.list_of_all_links = []
 
@@ -85,6 +85,84 @@ class Crawler:
             content_dict['contentType'] = content_type
             data = json.dumps(content_dict)
             print(data)
+            craw = Crawler()
+            craw.es_index_doc(data)
+
+    def es_create_index(self):
+        pPrint = pprint.PrettyPrinter(indent=4)
+        try:
+            esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
+            esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+            pPrint.pprint("Connected {0}".format(esClient.info()))
+            indexExist = esClient.indices.exists('aw2')
+            body = '''{
+                          "settings": {
+                            "number_of_shards": 2,
+                            "analysis": {
+                              "analyzer": {
+                                "default": {
+                                  "type": "custom",
+                                  "tokenizer": "standard",
+                                  "filter": [
+                                    "lowercase",
+                                    "keyword_repeat",
+                                    "porter_stem",
+                                    "unique_stem",
+                                    "stopFilter"
+                                  ]
+                                }
+                              },
+                              "filter": {
+                                "stopFilter": {
+                                  "type": "stop",
+                                  "stopwords": "_english_"
+                                },
+                                "unique_stem": {
+                                  "type": "unique",
+                                  "only_on_same_position": true
+                                }
+                              }
+                            }
+                          },
+                          "mappings": {
+                            "crawledData": {
+                              "properties": {
+                                "pageURL": {
+                                  "type": "text"
+                                },
+                                "pageTitle": {
+                                  "type": "text"
+                                },
+                                "contentHeader": {
+                                  "type": "text"
+                                },
+                                "content": {
+                                  "type": "text",
+                                  "analyzer": "default"
+                                },
+                                "contentType": {
+                                  "type": "text"
+                                }
+                              }
+                            }
+                          }
+                        }'''
+            if indexExist:
+                esClient.indices.delete(index='aw2', ignore=[400, 404])
+                print("Index deleted")
+            esClient.indices.create(index='aw2', body=body)
+            print("Index created")
+        except Exception as ex:
+            pPrint.pprint("Error: {0}".format(ex))
+
+    def es_index_doc(self, data):
+        pPrint = pprint.PrettyPrinter(indent=4)
+        try:
+            esUrl = "https://search-esaw2-s5pd4hrrxvewzfk2f6kezyg5mi.us-east-2.es.amazonaws.com/"
+            esClient = Elasticsearch([esUrl], use_ssl=True, verify_certs=True, ca_certs=certifi.where())
+            esClient.index(index='aw2', doc_type='crawledData', body=data)
+        except Exception as ex:
+            pPrint.pprint("Error: {0}".format(ex))
 
     def get_data_from_excel(self, file_path):
         sheet = pd.ExcelFile(file_path, sheet_name='Sheet1')
@@ -100,16 +178,29 @@ if __name__ == "__main__":
     craw = Crawler()
     craw.get_data_from_excel('/Users/prpatel/Documents/AdaptiveWeb/AdaptiveWeb2/Crawler/data1.xlsx')
     print("Donee!!")
-    # es = Elasticsearch([craw.esurl])
-    # pp = pprint.PrettyPrinter(indent=4)
-    # pp.pprint(es.info())
-    #
-    # got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
-    # if got_links:
-    #     got_content = craw.get_content_from_all_links()
-    #     if got_content:
-    #         print("Successfully got content from all links.")
-    #     else:
-    #         print("Couldn't get ")
-    # else:
-    #     print("Couldn't get the links on the page")
+    es = Elasticsearch([craw.esurl])
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(es.info())
+
+    got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
+    if got_links:
+        got_content = craw.get_content_from_all_links()
+        if got_content:
+            print("Successfully got content from all links.")
+        else:
+            print("Couldn't get ")
+    else:
+        print("Couldn't get the links on the page")
+
+    craw.es_create_index()
+    pp = pprint.PrettyPrinter(indent=4)
+    got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
+    if got_links:
+        got_content = craw.get_content_from_all_links()
+        if got_content:
+            print("Successfully got content from all links.")
+        else:
+            print("Couldn't get ")
+    else:
+        print("Couldn't get the links on the page")
+
