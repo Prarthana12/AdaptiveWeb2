@@ -4,7 +4,7 @@ import requests
 import pprint
 import os
 import json
-
+import pandas as pd
 
 class Crawler:
     def __init__(self):
@@ -43,7 +43,7 @@ class Crawler:
         return all_links[6:]
 
     def get_content_from_all_links(self):
-
+        flag = True
         while self.list_of_all_links != []:
             current_link = self.list_of_all_links.pop(0)
             response = requests.get(current_link)
@@ -86,19 +86,30 @@ class Crawler:
             data = json.dumps(content_dict)
             print(data)
 
+    def get_data_from_excel(self, file_path):
+        sheet = pd.ExcelFile(file_path, sheet_name='Sheet1')
+        df = sheet.parse('Sheet1')
+        val = df.to_json(orient="index")
+
+        data = json.loads(val)
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(data)
+        
 
 if __name__ == "__main__":
     craw = Crawler()
-    es = Elasticsearch([craw.esurl])
-    pp = pprint.PrettyPrinter(indent=4)
-    pp.pprint(es.info())
-
-    got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
-    if got_links:
-        got_content = craw.get_content_from_all_links()
-        if got_content:
-            print("Successfully got content from all links.")
-        else:
-            print("Couldn't get ")
-    else:
-        print("Couldn't get the links on the page")
+    craw.get_data_from_excel('/Users/prpatel/Documents/AdaptiveWeb/AdaptiveWeb2/Crawler/data1.xlsx')
+    print("Donee!!")
+    # es = Elasticsearch([craw.esurl])
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(es.info())
+    #
+    # got_links = craw.start_crawler("http://en.wikibooks.org/wiki/Java_Programming")
+    # if got_links:
+    #     got_content = craw.get_content_from_all_links()
+    #     if got_content:
+    #         print("Successfully got content from all links.")
+    #     else:
+    #         print("Couldn't get ")
+    # else:
+    #     print("Couldn't get the links on the page")
